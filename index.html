@@ -462,8 +462,9 @@
         document.getElementById("cycleStateDisplay").innerText = isDay ? "Daytime (An-Nahar)" : "Nighttime (Al-Layl)";
         
         document.getElementById("arabicHourDisplay").innerText = arabicName;
-        document.getElementById("hourIndexDisplay").innerText = `Hour Number: ${hourIndex} / 12 (${hourIndex === 1 ? '1st' : hourIndex === 2 ? '2nd' : hourIndex === 3 ? '3rd' : hourIndex + 'th'} Hour)`;
-
+        <!-- document.getElementById("hourIndexDisplay").innerText = `Hour Number: ${hourIndex} / 12 (${hourIndex === 1 ? '1st' : hourIndex === 2 ? '2nd' : hourIndex === 3 ? '3rd' : hourIndex + 'th'} Hour)`; -->
+        document.getElementById("hourIndexDisplay").innerText = `${hourIndex === 1 ? '1st' : hourIndex === 2 ? '2nd' : hourIndex === 3 ? '3rd' : hourIndex + 'th'} Hour`;
+        
         // --- GRAPHIC RENDERING HULL ---
         const sunBall = document.getElementById("sunBall");
         const graphicStatus = document.getElementById("graphicStatus");
