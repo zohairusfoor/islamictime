@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Islamic Hours Calculator & Converter</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --bg-dark: #070b12;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --border-gold: rgba(212, 175, 55, 0.3);
+            --gold: #d4af37;
+            --gold-bright: #f3e5ab;
+            --cyan: #0ea5e9;
+            --text-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, #111d33 0%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-gold);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin: 0 0 5px 0;
+            color: var(--gold);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        section {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* City Search Styling */
+        .search-box {
+            position: relative;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"], input[type="datetime-local"] {
+            flex: 1;
+            background: #090d16;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--gold);
+        }
+
+        button {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--gold-bright);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            right: 0;
+            background: #0f172a;
+            border: 1px solid var(--border-gold);
+            border-radius: 10px;
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-item:hover {
+            background: rgba(214, 175, 55, 0.15);
+        }
+
+        .active-location {
+            font-size: 14px;
+            color: var(--cyan);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* Displays Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .data-card {
+            text-align: center;
+        }
+
+        .val-large {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--cyan);
+            margin: 5px 0;
+        }
+
+        .val-sub {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        /* Main Islamic Hour Box */
+        .islamic-output {
+            background: linear-gradient(135deg, rgba(214, 175, 55, 0.12), rgba(0, 0, 0, 0.4));
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .arabic-name {
+            font-family: 'Amiri', serif;
+            font-size: 52px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 10px 0;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .hour-num {
+            font-size: 20px;
+            color: var(--gold-bright);
+            font-weight: 600;
+        }
+
+        /* Converter Form */
+        .converter-inputs {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Dynamic Sun Graphic */
+        .horizon-visual {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
+            margin-top: 10px;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #0c1524 50%, #060a12 50%);
+        }
+
+        .horizon-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #475569;
+            z-index: 5;
+        }
+
+        .sky-label {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .earth-label {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .sun-path {
+            position: absolute;
+            width: 90%;
+            height: 240px;
+            border: 1px dashed rgba(214, 175, 55, 0.2);
+            border-radius: 50%;
+            top: 40px;
+            left: 5%;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .sun-node {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            top: 50%;
+            left: 0;
+            transform: translate(-12px, -12px);
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        .graphic-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 6px;
+            padding: 0 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Islamic Unequal Hours</h1>
+    <div class="subtitle">Dynamic Subdivisions Dashboard</div>
+
+    <section>
+        <h3>1. Search Any Global City</h3>
+        <div class="search-box">
+            <input type="text" id="cityInput" placeholder="Type city name (e.g., Cairo, Fez, Paris)..." oninput="searchCity()">
+            <div id="resultsDropdown" class="search-results"></div>
+        </div>
+        <div id="locationFeedback" class="active-location">Current Tracking: Makkah, Saudi Arabia</div>
+    </section>
+
+    <div class="grid">
+        <section class="data-card">
+            <h3>Standard Clock Time</h3>
+            <div id="gregTimeDisplay" class="val-large">00:00:00</div>
+            <div id="gregDateDisplay" class="val-sub">-- --- ----</div>
+        </section>
+        <section class="data-card">
+            <h3>Hijri Calendar</h3>
+            <div id="hijriDateDisplay" class="val-large" style="font-size: 18px; line-height: 38px;">-- --- ----</div>
+            <div id="cycleStateDisplay" class="val-sub">--</div>
+        </section>
+    </div>
+
+    <section class="islamic-output">
+        <h3 id="panelTitle" style="margin:0;">Islamic Current Hour</h3>
+        <div id="arabicHourDisplay" class="arabic-name">السَّاعَة</div>
+        <div id="hourIndexDisplay" class="hour-num">Hour: -- / 12</div>
+    </section>
+
+    <section>
+        <h3>2. Mechanical To Islamic Hour Converter</h3>
+        <div class="converter-inputs">
+            <input type="datetime-local" id="converterDateTime">
+            <button onclick="toggleMode('convert')">Convert Time</button>
+            <button id="resetLiveBtn" style="background:#334155; color:white; display:none;" onclick="toggleMode('live')">Back to Live Clock</button>
+        </div>
+    </section>
+
+    <section>
+        <h3>3. Sun Horizon Elevation Graphic</h3>
+        <div class="horizon-visual">
+            <div class="sky-label">Sky (Above Horizon)</div>
+            <div class="horizon-line"></div>
+            <div class="earth-label">Earth (Below Horizon)</div>
+            <div class="sun-path"></div>
+            <div id="sunBall" class="sun-node"></div>
+        </div>
+        <div class="graphic-footer">
+            <span>Sunrise (Shuruq)</span>
+            <span id="graphicStatus" style="color:var(--gold); font-weight:600;">Above Horizon</span>
+            <span>Sunset (Maghrib)</span>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Global App Configuration Metrics
+    let activeCoords = { lat: 21.4267, lng: 39.8262, tz: "Asia/Riyadh" };
+    let appMode = "live"; // "live" or "convert"
+    
+    const dayArabic = ["الشُّروق", "البُكُور", "الغُدْوَة", "الضُّحَى", "الهَاجِرَة", "الظَّهِيرَة", "الرَّوَاح", "العَصْر", "القَصْر", "الأَصِيل", "العَشِيّ", "الغُرُوب"];
+    const nightArabic = ["الشَّفَق", "الغَسَق", "العَتَمَة", "السُّدْفَة", "الفَحْمَة", "الزُّلْفَة", "الهَزِيع (جوف)", "السَّحَر", "الفَجْر", "الصُّبْح", "الصَّبَاح", "الإِسْفَار"];
+
+    // Initialize datetime input box with current stamp
+    window.onload = () => {
+        const localTime = new Date();
+        localTime.setMinutes(localTime.getMinutes() - localTime.getTimezoneOffset());
+        document.getElementById('converterDateTime').value = localTime.toISOString().slice(0, 16);
+        
+        // Loop Engine
+        setInterval(tick, 1000);
+        tick();
+    };
+
+    // Free live open geocoding API engine
+    async function searchCity() {
+        const query = document.getElementById("cityInput").value.trim();
+        const dropdown = document.getElementById("resultsDropdown");
+        if (query.length < 3) { dropdown.style.display = "none"; return; }
+
+        try {
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`);
+            const data = await res.json();
+            
+            if (!data.results) return;
+            dropdown.innerHTML = "";
+            dropdown.style.display = "block";
+
+            data.results.forEach(item => {
+                const row = document.createElement("div");
+                row.className = "search-item";
+                row.innerText = `${item.name}, ${item.admin1 || ''} (${item.country})`;
+                row.onclick = () => {
+                    activeCoords = { lat: item.latitude, lng: item.longitude, tz: item.timezone };
+                    document.getElementById("locationFeedback").innerText = `Current Tracking: ${item.name}, ${item.country}`;
+                    dropdown.style.display = "none";
+                    document.getElementById("cityInput").value = "";
+                    tick();
+                };
+                dropdown.appendChild(row);
+            });
+        } catch (e) { console.error("Geocoding failed", e); }
+    }
+
+    function toggleMode(mode) {
+        appMode = mode;
+        if(mode === 'convert') {
+            document.getElementById("resetLiveBtn").style.display = "inline-block";
+            document.getElementById("panelTitle").innerText = "Converted Islamic Hour";
+            tick();
+        } else {
+            document.getElementById("resetLiveBtn").style.display = "none";
+            document.getElementById("panelTitle").innerText = "Islamic Current Hour";
+        }
+    }
+
+    // Accurate Sunrise/Sunset equations
+    function fetchSolarLimits(date, lat, lng, tzOffset) {
+        const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+        const declination = 0.409 * Math.sin((2 * Math.PI / 365) * (dayOfYear - 81));
+        const latRad = lat * Math.PI / 180;
+        const cosH = (Math.sin(-0.833 * Math.PI / 180) - Math.sin(latRad) * Math.sin(declination)) / (Math.cos(latRad) * Math.cos(declination));
+        
+        if (cosH >= 1) return { sunrise: 6, sunset: 18 }; 
+        if (cosH <= -1) return { sunrise: 0, sunset: 24 };
+
+        const H = Math.acos(cosH) * 180 / Math.PI;
+        const b = (2 * Math.PI / 364) * (dayOfYear - 81);
+        const eqTime = 9.87 * Math.sin(2 * b) - 7.53 * Math.cos(b) - 1.5 * Math.sin(b);
+        
+        const solarNoonUtc = 12 - (lng / 15) - (eqTime / 60);
+        return { 
+            sunrise: (solarNoonUtc - (H / 15) + tzOffset + 24) % 24, 
+            sunset: (solarNoonUtc + (H / 15) + tzOffset + 24) % 24 
+        };
+    }
+
+    function tick() {
+        let referenceDate = new Date();
+        
+        if (appMode === "convert") {
+            const inputVal = document.getElementById("converterDateTime").value;
+            if(inputVal) referenceDate = new Date(inputVal);
+        }
+
+        // Parse local localized city data structures
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: activeCoords.tz, hour12: false, hour: 'numeric', minute: 'numeric', second: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(referenceDate);
+        const t = Object.fromEntries(parts.map(p => [p.type, p.value]));
+        const cityDate = new Date(t.year, t.month - 1, t.day, t.hour, t.minute, t.second);
+        
+        const currentDecimalHour = cityDate.getHours() + cityDate.getMinutes() / 60 + cityDate.getSeconds() / 3600;
+        const tzOffset = (new Date(referenceDate.toLocaleString("en-US", {timeZone: activeCoords.tz})) - new Date(referenceDate.toLocaleString("en-US", {timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone}))) / 3600000 + (referenceDate.getTimezoneOffset() / -60);
+
+        const solar = fetchSolarLimits(cityDate, activeCoords.lat, activeCoords.lng, tzOffset);
+        
+        let isDay = currentDecimalHour >= solar.sunrise && currentDecimalHour < solar.sunset;
+        let hourIndex = 1;
+        let arabicName = "";
+        let progress = 0;
+
+        if (isDay) {
+            const dayLength = solar.sunset - solar.sunrise;
+            const elapsed = currentDecimalHour - solar.sunrise;
+            hourIndex = Math.floor(elapsed / (dayLength / 12)) + 1;
+            arabicName = dayArabic[Math.min(hourIndex - 1, 11)];
+            progress = elapsed / dayLength;
+        } else {
+            const nightLength = (24 - solar.sunset) + solar.sunrise;
+            const elapsed = currentDecimalHour >= solar.sunset ? (currentDecimalHour - solar.sunset) : ((24 - solar.sunset) + currentDecimalHour);
+            hourIndex = Math.floor(elapsed / (nightLength / 12)) + 1;
+            arabicName = nightArabic[Math.min(hourIndex - 1, 11)];
+            progress = elapsed / nightLength;
+        }
+
+        hourIndex = Math.max(1, Math.min(12, hourIndex));
+
+        // Display updates
+        document.getElementById("gregTimeDisplay").innerText = cityDate.toTimeString().split(' ')[0];
+        document.getElementById("gregDateDisplay").innerText = cityDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        
+        const hijriFormatter = new Intl.DateTimeFormat('en-TN-u-ca-islamic-umalqura', { timeZone: activeCoords.tz, day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById("hijriDateDisplay").innerText = hijriFormatter.format(referenceDate);
+        document.getElementById("cycleStateDisplay").innerText = isDay ? "Daytime (An-Nahar)" : "Nighttime (Al-Layl)";
+        
+        document.getElementById("arabicHourDisplay").innerText = arabicName;
+        document.getElementById("hourIndexDisplay").innerText = `Hour Number: ${hourIndex} / 12 (${hourIndex === 1 ? '1st' : hourIndex === 2 ? '2nd' : hourIndex === 3 ? '3rd' : hourIndex + 'th'} Hour)`;
+
+        // --- GRAPHIC RENDERING HULL ---
+        const sunBall = document.getElementById("sunBall");
+        const graphicStatus = document.getElementById("graphicStatus");
+
+        let leftPos = 5 + (progress * 90); // 5% to 95% horizontally
+        let angle = progress * Math.PI;
+        let midLineY = 80; // Center horizon line height
+
+        if(isDay) {
+            let offsetUp = Math.sin(angle) * 65; // Dynamic peak height
+            sunBall.style.left = `${leftPos}%`;
+            sunBall.style.top = `${midLineY - offsetUp}px`;
+            sunBall.style.background = "radial-gradient(circle, #fff, #ffd700)";
+            sunBall.style.boxShadow = "0 0 25px #ffd700";
+            graphicStatus.innerText = "Sun Above Horizon";
+        } else {
+            let offsetDown = Math.sin(angle) * 65;
+            sunBall.style.left = `${leftPos}%`;
+            sunBall.style.top = `${midLineY + offsetDown}px`;
+            sunBall.style.background = "radial-gradient(circle, #94a3b8, #334155)";
+            sunBall.style.boxShadow = "none";
+            graphicStatus.innerText = "Sun Below Horizon";
+        }
+    }
+</script>
+
+</body>
+</html>
